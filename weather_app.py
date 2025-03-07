@@ -1,13 +1,37 @@
 import requests
 import pprint 
+from geopy import geocoders
+from geopy.exc import GeocoderTimedOut 
+from geopy.geocoders import Nominatim 
 
 import CONSTANTS
 
-def make_url():
-    lat = input('Enter the latitude:\n')
-    long = input('Enter the longitude:\n')
+def get_lat_long(location_name): #get coordinates from name
+    geolocator = Nominatim(user_agent="geopy_example",timeout=10)
+    location = geolocator.geocode(location_name)
 
-    url = 'https://api.tomorrow.io/v4/weather/forecast?location='+lat+','+long+'&apikey='+CONSTANTS.OPENWEATHER_API_KEY
+    if location:
+        latitude, longitude = location.latitude, location.longitude
+        return latitude, longitude
+    else:
+        return None
+
+location_name = input("Enter a location name: ")
+result = get_lat_long(location_name)
+
+if result:
+    latitude, longitude = result
+    
+else:
+    print(f"Could not find coordinates for {location_name}") 
+
+def make_url(): #make url using coordinates
+
+#convert to string
+    lat = str(latitude)
+    long = str(longitude)
+
+    url = 'https://api.tomorrow.io/v4/weather/forecast?location='+lat+','+long+'&apikey='+CONSTANTS.TOMORROWWEATHER_API_KEY
     return url
 
 def get_posts():
@@ -36,3 +60,4 @@ def get_posts():
 
 
 output = get_posts()
+
